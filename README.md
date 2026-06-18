@@ -22,9 +22,9 @@ The calculator automatically generates electricity usage and cost for 1 to 24 ho
 
 ## Formula
 
-Power (kW) = (Voltage × Current) / 1000
-Energy (kWh) = Power × Hours
-Total Cost (RM) = Energy × (Rate / 100)
+- Power (kW) = (Voltage × Current) / 1000
+- Energy (kWh) = Power × Hours
+- Total Cost (RM) = Energy × (Rate / 100)
 
 ---
 
