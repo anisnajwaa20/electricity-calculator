@@ -9,6 +9,37 @@ $dailyCost = 0;
 $results = [];
 $error = "";
 
+function calculatePower($voltage, $current) {
+    return ($voltage * $current) / 1000;
+}
+
+function calculateEnergy($powerKW, $hour) {
+    return $powerKW * $hour;
+}
+
+function calculateTotalCost($energy, $rate) {
+    $rateRM = $rate / 100;
+    return $energy * $rateRM;
+}
+
+function calculateElectricityRates($voltage, $current, $rate) {
+    $powerKW = calculatePower($voltage, $current);
+    $results = [];
+
+    for ($hour = 1; $hour <= 24; $hour++) {
+        $energy = calculateEnergy($powerKW, $hour);
+        $total = calculateTotalCost($energy, $rate);
+
+        $results[] = [
+            "hour" => $hour,
+            "energy" => $energy,
+            "total" => $total
+        ];
+    }
+
+    return $results;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $voltage = $_POST["voltage"];
     $current = $_POST["current"];
@@ -17,22 +48,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($voltage <= 0 || $current <= 0 || $rate <= 0) {
         $error = "Please enter valid positive values.";
     } else {
-        $powerKW = ($voltage * $current) / 1000;
+        $powerKW = calculatePower($voltage, $current);
         $rateRM = $rate / 100;
+        $results = calculateElectricityRates($voltage, $current, $rate);
 
-        for ($hour = 1; $hour <= 24; $hour++) {
-            $energy = $powerKW * $hour;
-            $total = $energy * $rateRM;
-
-            $results[] = [
-                "hour" => $hour,
-                "energy" => $energy,
-                "total" => $total
-            ];
-        }
-
-        $dailyEnergy = $powerKW * 24;
-        $dailyCost = $dailyEnergy * $rateRM;
+        $dailyEnergy = calculateEnergy($powerKW, 24);
+        $dailyCost = calculateTotalCost($dailyEnergy, $rate);
     }
 }
 ?>
@@ -58,13 +79,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="mb-3">
                     <label class="form-label">Voltage (V)</label>
                     <input type="number" step="0.01" name="voltage" class="form-control"
-                           placeholder="Example: 240" value="<?= htmlspecialchars($voltage) ?>" required>
+                           placeholder="Example: 19" value="<?= htmlspecialchars($voltage) ?>" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Current (A)</label>
                     <input type="number" step="0.01" name="current" class="form-control"
-                           placeholder="Example: 5" value="<?= htmlspecialchars($current) ?>" required>
+                           placeholder="Example: 3.24" value="<?= htmlspecialchars($current) ?>" required>
                 </div>
 
                 <div class="mb-3">
@@ -151,4 +172,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 </html>
-
